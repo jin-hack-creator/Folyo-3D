@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import QRCode from 'qrcode.react'
+import { QRCodeCanvas } from 'qrcode.react'
 
 export default function QRCodeModal() {
     const [isOpen, setIsOpen] = useState(false)
@@ -42,7 +42,7 @@ export default function QRCodeModal() {
 
                     {/* QR Code */}
                     <div className="p-4 bg-white rounded-lg">
-                        <QRCode 
+                        <QRCodeCanvas 
                             value={projectUrl} 
                             size={256}
                             level="H"

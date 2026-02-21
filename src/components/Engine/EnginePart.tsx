@@ -513,7 +513,7 @@ function getEngineComponent(partId: string, color: string): JSX.Element {
 
 export default function EnginePart({ part, isExplodedView }: EnginePartProps) {
     const groupRef = useRef<THREE.Group>(null)
-    const { setSelectedPart, setPartRotation, selectedPartId } = useAssemblyStore()
+    const { setSelectedPart, setPartRotation } = useAssemblyStore()
     const [isDragging, setIsDragging] = useState(false)
     const dragPrev = useRef<[number, number] | null>(null)
     const [hovered, setHovered] = useState(false)
