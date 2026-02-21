@@ -9,7 +9,7 @@ import QRCodeModal from './components/UI/QRCodeModal'
 
 function App() {
     return (
-        <div className="w-full h-full relative bg-dark-900">
+        <div className="w-full h-screen relative bg-dark-900 overflow-hidden">
             {/* Header */}
             <Header />
 
@@ -23,8 +23,6 @@ function App() {
                     <EngineScene />
                 </Suspense>
             </Canvas>
-
-
 
             {/* UI Overlays */}
             <StepIndicator />
