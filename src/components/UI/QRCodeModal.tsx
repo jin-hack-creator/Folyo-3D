@@ -5,7 +5,7 @@ export default function QRCodeModal() {
     const [isOpen, setIsOpen] = useState(false)
     
     // URL du projet déployé - à configurer via variable d'environnement
-    const projectUrl = import.meta.env.VITE_PROJECT_URL || 'https://folyo-3d.vercel.app'
+    const projectUrl = import.meta.env.VITE_PROJECT_URL || 'https://folyo-3-d-u329.vercel.app'
 
     if (!isOpen) {
         return (
