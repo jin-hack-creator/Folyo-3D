@@ -4,7 +4,8 @@ import EngineScene from './components/Scene/EngineScene'
 import ControlPanel from './components/UI/ControlPanel'
 import StepIndicator from './components/UI/StepIndicator'
 import Header from './components/UI/Header'
-import LoadingScreen from './components/UI/LoadingScreen'
+import QRCodeModal from './components/UI/QRCodeModal'
+
 
 function App() {
     return (
@@ -23,14 +24,12 @@ function App() {
                 </Suspense>
             </Canvas>
 
-            {/* Loading overlay */}
-            <Suspense fallback={<LoadingScreen />}>
-                {null}
-            </Suspense>
+
 
             {/* UI Overlays */}
             <StepIndicator />
             <ControlPanel />
+            <QRCodeModal />
         </div>
     )
 }

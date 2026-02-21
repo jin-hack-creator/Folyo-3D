@@ -61,11 +61,12 @@ export default function StepIndicator() {
 
                                 {/* Informations de la pièce */}
                                 <div className="flex-1 min-w-0">
-                                    <p className={`font-semibold truncate ${isCurrentStep ? 'text-white' : isCompleted ? 'text-accent-success' : 'text-gray-300'
-                                        }`}>
+                                    <p className={`font-semibold ${isCurrentStep ? 'text-white' : isCompleted ? 'text-accent-success' : 'text-gray-300'
+                                        } break-words`}
+                                    >
                                         {part.nameFr}
                                     </p>
-                                    <p className="text-xs text-gray-500 truncate">{part.name}</p>
+                                    <p className="text-xs text-gray-500 break-words">{part.name}</p>
                                     {isCurrentStep && (
                                         <p className="text-xs text-gray-400 mt-1 line-clamp-2">
                                             {part.description}

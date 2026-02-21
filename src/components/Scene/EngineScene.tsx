@@ -8,7 +8,7 @@ export default function EngineScene() {
     return (
         <>
             {/* Éclairage professionnel de studio */}
-            <ambientLight intensity={0.4} />
+            <ambientLight intensity={0.6} />
 
             {/* Key Light - Lumière principale */}
             <directionalLight
@@ -102,8 +102,8 @@ export default function EngineScene() {
                 maxDistance={25}
                 minPolarAngle={Math.PI / 8}
                 maxPolarAngle={Math.PI / 1.5}
-                autoRotate={false}
-                autoRotateSpeed={0.3}
+                autoRotate={true}
+                autoRotateSpeed={0.5}
                 dampingFactor={0.05}
                 enableDamping={true}
             />

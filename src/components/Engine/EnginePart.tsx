@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
-import { EnginePart as EnginePartType } from '../../store/useAssemblyStore'
+import { EnginePart as EnginePartType, useAssemblyStore } from '../../store/useAssemblyStore'
 
 interface EnginePartProps {
     part: EnginePartType
@@ -513,20 +513,30 @@ function getEngineComponent(partId: string, color: string): JSX.Element {
 
 export default function EnginePart({ part, isExplodedView }: EnginePartProps) {
     const groupRef = useRef<THREE.Group>(null)
+    const { setSelectedPart, setPartRotation, selectedPartId } = useAssemblyStore()
+    const [isDragging, setIsDragging] = useState(false)
+    const dragPrev = useRef<[number, number] | null>(null)
     const [hovered, setHovered] = useState(false)
 
     useFrame(() => {
         if (!groupRef.current) return
 
-        const targetPos = isExplodedView && part.isAssembled
+        const targetPos = isExplodedView
             ? part.explodedPosition
             : part.isAssembled
                 ? part.position
                 : part.explodedPosition
 
+        // position interpolation
         groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetPos[0], 0.06)
         groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetPos[1], 0.06)
         groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetPos[2], 0.06)
+
+        // rotation interpolation towards stored rotation
+        const targetRot = part.rotation ?? [0, 0, 0]
+        groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRot[0], 0.06)
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRot[1], 0.06)
+        groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, targetRot[2], 0.06)
     })
 
     const displayColor = hovered ? '#ffffff' : part.color
@@ -537,6 +547,33 @@ export default function EnginePart({ part, isExplodedView }: EnginePartProps) {
             position={part.position}
             onPointerOver={() => setHovered(true)}
             onPointerOut={() => setHovered(false)}
+            onPointerDown={(e) => {
+                e.stopPropagation()
+                try { (e.target as Element).setPointerCapture(e.pointerId) } catch {}
+                setIsDragging(true)
+                dragPrev.current = [e.clientX, e.clientY]
+                setSelectedPart(part.id)
+            }}
+            onPointerMove={(e) => {
+                if (!isDragging) return
+                e.stopPropagation()
+                const prev = dragPrev.current
+                if (!prev) return
+                const dx = e.clientX - prev[0]
+                const dy = e.clientY - prev[1]
+                dragPrev.current = [e.clientX, e.clientY]
+                const sensitivity = 0.005
+                const rotX = (part.rotation?.[0] ?? 0) + dy * sensitivity
+                const rotY = (part.rotation?.[1] ?? 0) + dx * sensitivity
+                const rotZ = part.rotation?.[2] ?? 0
+                setPartRotation(part.id, [rotX, rotY, rotZ])
+            }}
+            onPointerUp={(e) => {
+                e.stopPropagation()
+                try { (e.target as Element).releasePointerCapture(e.pointerId) } catch {}
+                setIsDragging(false)
+                dragPrev.current = null
+            }}
         >
             {getEngineComponent(part.id, displayColor)}
 
@@ -546,15 +583,19 @@ export default function EnginePart({ part, isExplodedView }: EnginePartProps) {
                     center
                     style={{ pointerEvents: 'none', userSelect: 'none' }}
                 >
-                    <div className="glass px-4 py-3 text-center min-w-[180px]">
-                        <span className="font-bold text-accent-primary text-lg">{part.nameFr}</span>
-                        <br />
-                        <span className="text-gray-400 text-sm">{part.name}</span>
-                        <p className="text-xs text-gray-500 mt-2">{part.description}</p>
-                        <div className="mt-2 text-xs font-medium" style={{ color: part.isAssembled ? '#10b981' : '#f59e0b' }}>
-                            {part.isAssembled ? '✅ Monté' : '🔧 Démonté'}
+                        <div
+                            className="glass px-4 py-3 text-center w-auto max-w-[220px] break-words"
+                            style={{ pointerEvents: 'none', userSelect: 'none', zIndex: 50 }}
+                            aria-hidden
+                        >
+                            <span className="font-bold text-accent-primary text-lg break-words">{part.nameFr}</span>
+                            <br />
+                            <span className="text-gray-400 text-sm break-words">{part.name}</span>
+                            <p className="text-xs text-gray-500 mt-2 break-words">{part.description}</p>
+                            <div className="mt-2 text-xs font-medium" style={{ color: part.isAssembled ? '#10b981' : '#f59e0b' }}>
+                                {part.isAssembled ? '✅ Monté' : '🔧 Démonté'}
+                            </div>
                         </div>
-                    </div>
                 </Html>
             )}
         </group>

@@ -8,6 +8,7 @@ export interface EnginePart {
     description: string
     position: [number, number, number]
     explodedPosition: [number, number, number]
+    rotation?: [number, number, number]
     color: string
     order: number
     isAssembled: boolean
@@ -20,7 +21,7 @@ interface AssemblyState {
     isExplodedView: boolean
     isAnimating: boolean
     parts: EnginePart[]
-
+    selectedPartId?: string | null
     setMode: (mode: 'idle' | 'disassembly' | 'assembly') => void
     nextStep: () => void
     prevStep: () => void
@@ -30,6 +31,8 @@ interface AssemblyState {
     resetAssembly: () => void
     disassemblePart: (partId: string) => void
     assemblePart: (partId: string) => void
+    setSelectedPart: (partId: string | null) => void
+    setPartRotation: (partId: string, rotation: [number, number, number]) => void
 }
 
 // Pièces du moteur industriel 4 cylindres en ligne (style KEYOU)
@@ -43,6 +46,7 @@ const initialParts: EnginePart[] = [
         position: [1.8, 2.8, 0],
         explodedPosition: [4, 5, 0],
         color: '#1e3a5f', // Bleu foncé
+        rotation: [0, 0, 0],
         order: 1,
         isAssembled: true
     },
@@ -54,6 +58,7 @@ const initialParts: EnginePart[] = [
         position: [0, 2.6, 0],
         explodedPosition: [0, 5.5, 0],
         color: '#1e3a5f', // Bleu foncé KEYOU
+        rotation: [0, 0, 0],
         order: 2,
         isAssembled: true
     },
@@ -65,6 +70,7 @@ const initialParts: EnginePart[] = [
         position: [0, 2.2, 0],
         explodedPosition: [0, 4.8, 0],
         color: '#2563eb', // Bleu KEYOU
+        rotation: [0, 0, 0],
         order: 3,
         isAssembled: true
     },
@@ -76,6 +82,7 @@ const initialParts: EnginePart[] = [
         position: [0, 1.9, 0.5],
         explodedPosition: [0, 4, 2],
         color: '#1a1a1a', // Noir carbone
+        rotation: [0, 0, 0],
         order: 4,
         isAssembled: true
     },
@@ -87,6 +94,7 @@ const initialParts: EnginePart[] = [
         position: [0, 1.5, 0.3],
         explodedPosition: [0, 3.5, 1.5],
         color: '#c0c0c0', // Chrome
+        rotation: [0, 0, 0],
         order: 5,
         isAssembled: true
     },
@@ -98,6 +106,7 @@ const initialParts: EnginePart[] = [
         position: [1.5, 1.5, 0.5],
         explodedPosition: [3.5, 3, 1.5],
         color: '#4a5568', // Aluminium foncé
+        rotation: [0, 0, 0],
         order: 6,
         isAssembled: true
     },
@@ -110,6 +119,7 @@ const initialParts: EnginePart[] = [
         position: [0, 1.1, 0],
         explodedPosition: [0, 2.8, 0],
         color: '#9ca3af', // Aluminium
+        rotation: [0, 0, 0],
         order: 7,
         isAssembled: true
     },
@@ -121,6 +131,7 @@ const initialParts: EnginePart[] = [
         position: [0, 0.85, 0],
         explodedPosition: [0, 2.2, 0],
         color: '#166534', // Vert joint
+        rotation: [0, 0, 0],
         order: 8,
         isAssembled: true
     },
@@ -132,6 +143,7 @@ const initialParts: EnginePart[] = [
         position: [-1.5, 0.8, 0],
         explodedPosition: [-4, 1.5, 0],
         color: '#78716c', // Fonte grise
+        rotation: [0, 0, 0],
         order: 9,
         isAssembled: true
     },
@@ -143,6 +155,7 @@ const initialParts: EnginePart[] = [
         position: [0, 0.5, 0.8],
         explodedPosition: [0, 1.2, 2.5],
         color: '#1f2937', // Noir
+        rotation: [0, 0, 0],
         order: 10,
         isAssembled: true
     },
@@ -155,6 +168,7 @@ const initialParts: EnginePart[] = [
         position: [0, 0.2, 0],
         explodedPosition: [0, 0.8, 0],
         color: '#d97706', // Bronze
+        rotation: [0, 0, 0],
         order: 11,
         isAssembled: true
     },
@@ -166,6 +180,7 @@ const initialParts: EnginePart[] = [
         position: [0, -0.3, 0],
         explodedPosition: [0, -0.3, 0],
         color: '#e5e7eb', // Aluminium clair
+        rotation: [0, 0, 0],
         order: 12,
         isAssembled: true
     },
@@ -177,6 +192,7 @@ const initialParts: EnginePart[] = [
         position: [0, -0.9, 0],
         explodedPosition: [0, -2.2, 0],
         color: '#4b5563', // Acier
+        rotation: [0, 0, 0],
         order: 13,
         isAssembled: true
     },
@@ -189,6 +205,7 @@ const initialParts: EnginePart[] = [
         position: [1.6, 0, 0],
         explodedPosition: [4, 0, 0],
         color: '#1f2937', // Noir
+        rotation: [0, 0, 0],
         order: 14,
         isAssembled: true
     },
@@ -200,6 +217,7 @@ const initialParts: EnginePart[] = [
         position: [-1.8, -0.9, 0],
         explodedPosition: [-4.5, -1.5, 0],
         color: '#9ca3af', // Aluminium
+        rotation: [0, 0, 0],
         order: 15,
         isAssembled: true
     },
@@ -211,6 +229,7 @@ const initialParts: EnginePart[] = [
         position: [0, -1.5, 0],
         explodedPosition: [0, -4, 0],
         color: '#374151', // Gris foncé
+        rotation: [0, 0, 0],
         order: 16,
         isAssembled: true
     },
@@ -222,6 +241,7 @@ const initialParts: EnginePart[] = [
         position: [2, -0.5, 0],
         explodedPosition: [5, -0.5, 0],
         color: '#6b7280', // Gris
+        rotation: [0, 0, 0],
         order: 17,
         isAssembled: true
     }
@@ -234,6 +254,7 @@ export const useAssemblyStore = create<AssemblyState>((set, get) => ({
     isExplodedView: false,
     isAnimating: false,
     parts: initialParts,
+    selectedPartId: null,
 
     setMode: (mode) => {
         if (mode === 'disassembly') {
@@ -336,5 +357,12 @@ export const useAssemblyStore = create<AssemblyState>((set, get) => ({
         parts: state.parts.map(p =>
             p.id === partId ? { ...p, isAssembled: true } : p
         )
+    }))
+
+    ,
+    setSelectedPart: (partId) => set({ selectedPartId: partId }),
+
+    setPartRotation: (partId, rotation) => set((state) => ({
+        parts: state.parts.map(p => p.id === partId ? { ...p, rotation } : p)
     }))
 }))
